@@ -170,6 +170,26 @@
         .sidebar__folder-items.open {
             display: block;
         }
+
+        .sidebar__folder-skills {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-left: 0;
+            color: var(--text-primary);
+            box-shadow: 0 0 8px rgba(139, 122, 255, 0.15); /* Subtle purple glow */
+        }
+
+        .sidebar__folder-skills:hover {
+            background-color: #151515;
+            opacity: 1;
+        }
         
         .sidebar__item {
             padding: 0.4rem 0.5rem;
@@ -232,6 +252,15 @@
             width: 100%;
             position: relative;
             z-index: 1;
+            position: relative;
+        }
+
+        /* Use full note area for floating skills */
+        body.skills-active .container{
+            max-width: none;
+            width: 100%;
+            height: 100%;
+            min-height: 70vh;
         }
         
         /* ===== HEADER ===== */
@@ -611,7 +640,84 @@
         }
     }
 
+        /* ===== SKILLS CARDS (GLASS FLOATING) ===== */
+        .skills-grid{
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
 
+        @media (max-width: 900px){
+          .skills-grid{ grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 520px){
+          .skills-grid{ grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .skill-card{
+            width: 96px;
+            height: 96px;
+            background: rgba(20,20,25,0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1.5px solid rgba(64,64,64,0.8);
+            box-shadow: inset 0 0 0 1px rgba(64,64,64,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+            animation: float 3.5s ease-in-out infinite, borderPulse 2.4s ease-in-out 1;
+            position: absolute;
+            pointer-events: auto;
+            animation: float 3.5s ease-in-out infinite, borderPulse 2.4s ease-in-out 1, drift 4s ease-in-out infinite;
+        }
+        @keyframes drift {
+          0% { transform: translateY(-10px); }
+          50% { transform: translateY(10px); }
+          100% { transform: translateY(-10px); }
+        }
+
+        .skill-card:nth-child(1){ animation-delay: 0s; }
+        .skill-card:nth-child(2){ animation-delay: .5s; }
+        .skill-card:nth-child(3){ animation-delay: 1s; }
+        .skill-card:nth-child(4){ animation-delay: 1.5s; }
+        .skill-card:nth-child(5){ animation-delay: 2s; }
+
+        @keyframes float{
+            0%{ transform: translateY(0) rotate(0deg); }
+            50%{ transform: translateY(-10px) rotate(1.5deg); }
+            100%{ transform: translateY(0) rotate(0deg); }
+        }
+
+        @keyframes borderPulse{
+          0%{ box-shadow: inset 0 0 0 1px rgba(0,255,170,0.9), 0 0 0 rgba(0,255,170,0); }
+          50%{ box-shadow: inset 0 0 0 1px rgba(0,255,170,0.9), 0 0 16px rgba(0,255,170,0.35); }
+          100%{ box-shadow: inset 0 0 0 1px rgba(64,64,64,0.8), 0 0 0 rgba(0,255,170,0); }
+        }
+
+        .skill-card img{
+            width: 46px;
+            height: 46px;
+            opacity: .9;
+            filter: brightness(1.2);
+            transition: transform .3s ease, filter .3s ease;
+        }
+
+        .skill-card:hover{
+            transform: translateY(-12px) scale(1.1);
+            border-color: rgba(0,255,170,0.9);
+            box-shadow: 0 0 20px rgba(0,255,170,.4);
+        }
+
+        .skill-card:hover img{
+            filter: brightness(1.6) saturate(1.2);
+            transform: scale(1.1);
+        }
+
+        #skills-bg{ display:none; }
     </style>
 </head>
 <body>
@@ -619,6 +725,7 @@
         <pre id="terminal-output"></pre><span class="cursor">█</span>
     </div>
     <canvas id="wave-bg"></canvas>
+    <canvas id="skills-bg"></canvas>
     <div class="app">
         <!-- SIDEBAR -->
         <aside class="sidebar">
@@ -646,20 +753,29 @@
                         <!-- <div class="sidebar__item" onclick="loadContent('simpltimer')">04 - SimplTimer</div> -->
                     </div>
                 </div>
+
+                <!-- Skills File -->
+                <div class="sidebar__folder-skills" onclick="loadContent('skills')">
+                    <span class="sidebar__folder-toggle">▶</span>
+                    <span class="sidebar__folder-name">02 - skills</span>
+                </div>
                 
                 <!-- Notes Folder -->
                 <div class="sidebar__folder">
                     <div class="sidebar__folder-header" onclick="toggleFolder('notes')">
                         <span class="sidebar__folder-toggle open" id="toggle-notes">▶</span>
-                        <span class="sidebar__folder-name">02 - notes</span>
+                        <span class="sidebar__folder-name">03 - notes</span>
                     </div>
                     <div class="sidebar__folder-items open" id="folder-notes">
                         <div class="sidebar__item" onclick="loadContent('learning')">01 - learning</div>
                         <div class="sidebar__item" onclick="loadContent('music')">02 - music</div>
+                        <div class="sidebar__item" onclick="loadContent('how-i-work')">03 - how-i-work</div>
+
                     </div>
+
                 </div>
                 
-                <!-- Systems Folder -->
+                <!-- Systems Folder
                 <div class="sidebar__folder">
                     <div class="sidebar__folder-header" onclick="toggleFolder('systems')">
                         <span class="sidebar__folder-toggle open" id="toggle-systems">▶</span>
@@ -668,7 +784,7 @@
                     <div class="sidebar__folder-items open" id="folder-systems">
                         <div class="sidebar__item" onclick="loadContent('how-i-work')">01 - how-i-work</div>
                     </div>
-                </div>
+                </div> -->
                 
                 <!-- School Folder -->
                 <!-- <div class="sidebar__folder">
@@ -860,6 +976,11 @@
                     'monaspace krypton font: found it in some random reddit thread. liked the look and downloaded it.',
                 ]
             },
+            'skills': {
+                title: 'skills',
+                type: 'skills',
+                blocks: []
+            },
         };
         
         // Helper: process colon-prefixed concepts with semantic label
@@ -889,6 +1010,48 @@
         function renderContent(contentId) {
             const container = document.querySelector('.container');
             const data = contentData[contentId];
+
+            // Special renderer for skills (skills card grid overlay)
+            if (data.type === 'skills') {
+                container.innerHTML = `
+                    <div class="skills-grid">
+                    <div class="skill-card"><img src="logos/python.svg" alt="Python"></div>
+                    <div class="skill-card"><img src="logos/js.svg" alt="JavaScript"></div>
+                    <div class="skill-card"><img src="logos/java.svg" alt="Java"></div>
+                    <div class="skill-card"><img src="logos/c.svg" alt="C"></div>
+                    <div class="skill-card"><img src="logos/html.svg" alt="HTML"></div>
+                    </div>
+                `;
+                const cards = container.querySelectorAll('.skill-card');
+                const positions = [];
+                const minDist = 18; // % distance roughly one card width
+
+                cards.forEach((card) => {
+                  let x, y, safe = false, tries = 0;
+
+                  while (!safe && tries < 50) {
+                    x = Math.random() * 80 + 5;
+                    y = Math.random() * 80 + 5;
+                    safe = true;
+
+                    for (const p of positions) {
+                      const dx = x - p.x;
+                      const dy = y - p.y;
+                      if (Math.sqrt(dx*dx + dy*dy) < minDist) {
+                        safe = false;
+                        break;
+                      }
+                    }
+                    tries++;
+                  }
+
+                  positions.push({x, y});
+                  card.style.left = x + '%';
+                  card.style.top = y + '%';
+                  card.style.animationDelay = (Math.random() * 3) + 's';
+                });
+                return;
+            }
             
             if (!data) return;
             
@@ -993,6 +1156,7 @@
         
         // Load content when file is clicked
         function loadContent(contentId) {
+            document.body.classList.toggle('skills-active', contentId === 'skills');
             // Remove active class from all items
             document.querySelectorAll('.sidebar__item').forEach(item => {
                 item.classList.remove('active');
@@ -1564,6 +1728,7 @@
                 hintInterval = null;
             }
         }
+
     </script>
 </body>
 </html>
