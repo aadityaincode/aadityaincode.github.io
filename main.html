@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>aadityaincode</title>
     <style>
+        .terminal-locked {
+            color: #e5e5e5;
+            opacity: .6;
+            transition: color 0.25s ease, opacity 0.25s ease;
+        }
+
+        .terminal-locked:hover {
+            color: #39ff14 !important;  /* green on hover */
+            opacity: 1;
+        }
+
+
+        .term-label {
+            transition: color 0.25s ease;
+        }
+
+        .note-item.terminal:hover .term-label {
+            color: #39ff14;
+        }
+
+        .bin-label {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+
         /* ===== FONT IMPORTS ===== */
         @font-face {
             font-family: 'Monaspace Krypton';
@@ -721,6 +747,7 @@
     </style>
 </head>
 <body>
+    
     <div id="boot-terminal">
         <pre id="terminal-output"></pre><span class="cursor">█</span>
     </div>
@@ -770,6 +797,9 @@
                         <div class="sidebar__item" onclick="loadContent('learning')">01 - learning</div>
                         <div class="sidebar__item" onclick="loadContent('music')">02 - music</div>
                         <div class="sidebar__item" onclick="loadContent('how-i-work')">03 - how-i-work</div>
+                        <div class="sidebar__item terminal-locked note-item" onclick="openTerminalNote(event)">
+                            <span class="bin-label" data-base="??">??</span> - terminal
+                        </div>
 
                     </div>
 
@@ -881,6 +911,7 @@
     <script>
         // Content database - add your actual content here
         const contentData = {
+            'terminal':{ title:'terminal', type:'terminal', blocks:[] },
             'whoami': {
                 title: 'whoami',
                 type: 'landing',
@@ -1052,7 +1083,28 @@
                 });
                 return;
             }
-            
+
+            // Special renderer for terminal note
+            if (data.type === 'terminal') {
+                container.innerHTML = `
+                    <div class="card">
+                        <h2 class="card__title">terminal</h2>
+                        <div class="card__content">
+                            <div class="card__text-block">
+                                <pre class="card__text" id="terminal-ui">type \`help\` to begin.</pre>
+                            </div>
+                            <div class="card__text-block">
+                                <input id="terminal-input" 
+                                       placeholder="> enter command" 
+                                       style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:10px;color:#22c55e;font-family:'Monaspace Krypton',monospace;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimeout(initTerminalUI, 50);
+                return;
+            }
+
             if (!data) return;
             
             // Build content HTML
@@ -1729,6 +1781,167 @@
             }
         }
 
-    </script>
+        let terminalUnlocked = localStorage.getItem('terminalUnlocked')==='true';
+        function openTerminalNote(e){
+        if(!terminalUnlocked){
+            const key = prompt('Enter access key:');
+            if(key!=='vault-1973'){alert('Invalid key');return;}
+            window.unlockTerminal(key);
+        }
+        openTerminalOverlay();
+        }
+
+                window.unlockTerminal = function(key){ if(key==='vault-1973'){ localStorage.setItem('terminalUnlocked','true'); terminalUnlocked=true; document.querySelectorAll('.terminal-locked').forEach(el=>{el.classList.add('terminal-unlocked'); el.innerHTML='?? - terminal <span style="float:right">🔓</span>';}); }}
+
+            </script>
+            <script>
+        // ===== FULLSCREEN TERMINAL OVERLAY =====
+        const terminalOverlay = document.createElement('div');
+        terminalOverlay.id = 'terminal-overlay';
+        terminalOverlay.innerHTML = `
+        <div id="terminal-window">
+            <div id="terminal-header">
+            <span>guest@vault:~$</span>
+            <button id="terminal-close">×</button>
+            </div>
+            <pre id="overlay-output">Type 'help' for available commands\n</pre>
+            <div id="terminal-line">
+            <span id="prompt">guest@vault:~$</span>
+            <span id="typed"></span><span id="overlay-cursor">█</span>
+            <input id="overlay-input" autocomplete="off" />
+            </div>
+        </div>
+        `;
+        document.body.appendChild(terminalOverlay);
+
+        const overlayStyles = document.createElement('style');
+        overlayStyles.textContent = `
+        #terminal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9998;display:none}
+        #terminal-window{position:absolute;inset:8%;border:1px solid #39ff14;color:#39ff14;font-family:'Monaspace Krypton',monospace;padding:20px;box-shadow:0 0 40px rgba(57,255,20,.15)}
+        #terminal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        #terminal-close{background:none;border:none;color:#39ff14;font-size:22px;cursor:pointer}
+        #overlay-output{height:70%;overflow-y:auto;white-space:pre-wrap}
+        #overlay-input{width:100%;background:#000;border:none;border-top:1px solid #39ff14;color:#39ff14;padding:8px;font-family:inherit;outline:none}
+        #overlay-cursor{animation:blink 1s step-end infinite}
+        @keyframes blink{50%{opacity:0}}
+        #terminal-line{display:flex;align-items:center;gap:8px}
+        #prompt{color:#39ff14}
+        #typed{white-space:pre}
+        #overlay-input{position:absolute;opacity:0}
+        .cmd-line{color:#8bffb0;}
+        .out-line{color:#39ff14;}
+        .out-line:last-child{margin-bottom:10px;display:block;}
+        `;
+        document.head.appendChild(overlayStyles);
+
+        // Remove logic that reads from document.documentElement.innerHTML or searches for access_key/vault-1973
+        const SECRET_FLAG = "TBD";
+        const files = {
+        'README.txt': 'Welcome to my terminal, hacker.\nYour mission: find the secret I have been hiding from the world',
+        'secrets/flag.txt': 'No secrets found. Mission pending.'
+        };
+
+        function printLine(t){
+        const o = document.getElementById('overlay-output');
+        o.innerHTML += `<span class="out-line">${t}</span>\n`;
+        o.scrollTop = o.scrollHeight;
+        }
+
+        function handleCommand(cmd){
+        if(cmd==='help'){
+            printLine('ls - list files');printLine('cat <file> - read');printLine('whoami');printLine('mission');printLine('clear');printLine('exit');
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        else if(cmd==='whoami'){
+            printLine('User: guest');printLine('Access Level: visitor');printLine('Objective: Find the secret');
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        else if(cmd==='mission'){
+            printLine('Find the secret hidden in the vault.');
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        else if(cmd==='ls'){
+            Object.keys(files).forEach(f=>printLine(f));
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        else if(cmd.startsWith('cat')){
+            const f=cmd.split(' ')[1];printLine(files[f]||'file not found');
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        else if(cmd==='clear'){
+            document.getElementById('overlay-output').textContent='';
+            return;
+        }
+        else if(cmd==='exit'){
+            closeTerminalOverlay();
+            return;
+        }
+        else{
+            printLine('unknown command');
+            document.getElementById('overlay-output').innerHTML += `\n`;
+            return;
+        }
+        }
+
+        function openTerminalOverlay(){
+        terminalOverlay.style.display='block';
+        document.getElementById('overlay-input').focus();
+        document.getElementById('typed').textContent = '';
+        }
+        function closeTerminalOverlay(){ terminalOverlay.style.display='none'; }
+
+        terminalOverlay.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTerminalOverlay(); });
+        document.getElementById('terminal-close').onclick=closeTerminalOverlay;
+        const inputEl = document.getElementById('overlay-input');
+        const typedEl = document.getElementById('typed');
+        inputEl.addEventListener('keydown', e => {
+        if(e.key === 'Backspace'){
+            typedEl.textContent = typedEl.textContent.slice(0,-1);
+            e.preventDefault();
+        } else if(e.key === 'Enter'){
+            const v = typedEl.textContent;
+            typedEl.textContent = '';
+            document.getElementById('overlay-output').innerHTML += `<span class="cmd-line">guest@vault:~$ ${v}</span>\n`;
+            handleCommand(v.trim());
+            e.preventDefault();
+        } else if(e.key.length === 1){
+            typedEl.textContent += e.key;
+            e.preventDefault();
+        }
+        });
+
+        // Fast live binary for ?? - terminal
+        (function() {
+            const terminalNote = document.querySelector('.terminal-locked.note-item');
+            if (!terminalNote) return;
+            
+            const binSpan = terminalNote.querySelector('.bin-label');
+            if (!binSpan) return;
+            
+            const baseText = binSpan.getAttribute('data-base') || '??';
+            let intervalId;
+            
+            function randomBinary(len) {
+                return Array.from({length: len}, () => Math.random() < 0.5 ? '0' : '1').join('');
+            }
+            
+            terminalNote.addEventListener('mouseenter', () => {
+                binSpan.textContent = randomBinary(baseText.length);
+                intervalId = setInterval(() => {
+                    binSpan.textContent = randomBinary(baseText.length);
+                }, 150);  // changes every 150ms 
+            });
+            
+            terminalNote.addEventListener('mouseleave', () => {
+                clearInterval(intervalId);
+                binSpan.textContent = baseText;
+            });
+        })();
+</script>
 </body>
 </html>
