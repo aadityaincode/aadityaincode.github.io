@@ -8,7 +8,6 @@ const contentData = {
         blocks: [
             'computer science student interested in data, systems, and how people organize complexity.',
             'i like building things slowly, thinking in markdown, and understanding <span class="card__highlight">why</span> systems work the way they do.',
-            'also, i like prog music.'
         ]
     },
     'fts': {
@@ -39,13 +38,6 @@ const contentData = {
         github: 'https://github.com/aadityaincode/Deep-Notes.git',
         demo: 'https://www.youtube.com/watch?v=2q-m6M6JjXI'
     },
-    // 'simpltimer': {
-    //     title: '04 - SimplTimer',
-    //     type: 'project',
-    //     blocks: ['SimplTimer project description goes here.'],
-    //     github: 'https://github.com/buhariE/SimplTimer.git',
-    //     demo: null
-    // },
     'touchline': {
         title: '04 - touchline',
         type: 'project',
@@ -69,21 +61,8 @@ const contentData = {
         title: '02 - how-i-work',
         type: 'note',
         blocks: [
-            'planning first: diagram workflows, map systems, think through edge cases before writing a single line.',
-            'process: brainstorm → understand → plan → build. no shortcuts.',
-            'obsidian for everything — notes, brainstorming, workflows, learning. this site is just that system made public.',
-            'slow start, attention to detail, patience over speed.',
-            'monaspace krypton: found it in a random reddit thread. liked the look, kept it.'
-        ]
-    },
-    'site-notes': {
-        title: '03 - site-notes',
-        type: 'note',
-        blocks: [
-            'got motivated after seeing a series of thoughtful personal sites. wanted to build something that reflects how i actually think.',
-            'the vault structure came naturally — i already live in obsidian. why design something different?',
-            'monaspace krypton: found it in a random reddit thread. liked the look, kept it.',
-            'also: building it was a good excuse to learn by doing.'
+            'planning first: diagram workflows, map systems, edge cases before code. brainstorm → understand → plan → build.',
+            'obsidian for everything — this site is just that system made public.',
         ]
     },
     'skills': {
@@ -705,7 +684,6 @@ function highlightSidebar() {
         skills:   { type: 'file', target: 'skills', folder: null },
         learning: { type: 'file', target: 'learning', folder: 'notes' },
         howiwork: { type: 'file', target: 'how-i-work', folder: 'notes' },
-        sitenotes: { type: 'file', target: 'site-notes', folder: 'notes' }
     };
 
     svg.innerHTML = '';
@@ -715,7 +693,7 @@ function highlightSidebar() {
     // Arrange nodes in a circle for visual clarity and even spacing
     const nodeKeys = [
         'whoami', 'fts', 'deepnotes', 'bmats', 'touchline',
-        'skills', 'learning', 'howiwork', 'sitenotes'
+        'skills', 'learning', 'howiwork'
     ];
     const nodes = nodeKeys.map((id, i) => {
         const angle = (2 * Math.PI * i) / nodeKeys.length;
