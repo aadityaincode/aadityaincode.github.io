@@ -12,7 +12,7 @@ const contentData = {
         ]
     },
     'fts': {
-        title: '01- fts',
+        title: '01 - fts',
         type: 'project',
         blocks: ['fts: full-stack football training system (javafx frontend + java backend)',
                 'first project, most enjoyable so far. went all out on login/signup flow + reports even though it was just coursework. intense learning experience.',
@@ -62,45 +62,28 @@ const contentData = {
         blocks: [
             'active focus: networks, discrete mathematics, and whatever problem i\'m trying to solve that week.',
             'learning by breaking things: build something, watch it fail, figure out why. repeat until it makes sense.',
-            'reality check: my "to-learn" list is longer than my "learned" list. working on being okay with that.'
-        ]
-    },
-    'music': {
-        title: '02 - music',
-        type: 'note',
-        blocks: [
-            'music taste: progressive. anything long, complex, or that builds over time. bonus points for weird time signatures.',
-            'why: every listen reveals something new you missed before.'
+            'my "to-learn" list is longer than my "learned" list. working on being okay with that.'
         ]
     },
     'how-i-work': {
-        title: '01 - how-i-work',
+        title: '02 - how-i-work',
         type: 'note',
         blocks: [
-            'planning first: i diagram workflows, map systems, and think through edge cases before writing code. sometimes too much, but it saves time later.',
-            'visual learner: flowcharts and system diagrams help me understand complexity.',
-            'obsidian for everything: notes, brainstorming, workflows, learning. <a href="#" onclick="loadContent(\'design-decisions\'); return false;" style="color: var(--accent-purple); text-decoration: underline;">this vault-based site design came directly from my obsidian setup</a>.',
+            'planning first: diagram workflows, map systems, think through edge cases before writing a single line.',
             'process: brainstorm → understand → plan → build. no shortcuts.',
-            'i work deliberately: slow start, attention to details, patience over speed.'
+            'obsidian for everything — notes, brainstorming, workflows, learning. this site is just that system made public.',
+            'slow start, attention to detail, patience over speed.',
+            'monaspace krypton: found it in a random reddit thread. liked the look, kept it.'
         ]
     },
-    'why-this-site': {
-        title: '01 - why-this-site',
+    'site-notes': {
+        title: '03 - site-notes',
         type: 'note',
         blocks: [
-            'got motivated after seeing a series of thoughtful personal sites.',
-            'wanted to build something that reflects how i actually think and work.',
-            'this vault structure came naturally - it\'s how i organize everything in obsidian anyway.',
+            'got motivated after seeing a series of thoughtful personal sites. wanted to build something that reflects how i actually think.',
+            'the vault structure came naturally — i already live in obsidian. why design something different?',
+            'monaspace krypton: found it in a random reddit thread. liked the look, kept it.',
             'also: building it was a good excuse to learn by doing.'
-        ]
-    },
-    'design-decisions': {
-        title: '02 - design-decisions',
-        type: 'note',
-        blocks: [
-            'heavily inspired by obsidian.',
-            'vault structure, sidebar navigation, dark theme - i already live in this system. why design something different?',
-            'monaspace krypton font: found it in some random reddit thread. liked the look and downloaded it.',
         ]
     },
     'skills': {
@@ -137,13 +120,13 @@ function renderContent(contentId) {
     if (data.type === 'skills') {
         const skills = [
             { name: 'Python', logo: 'logos/python.svg' },
-            { name: 'JavaScript', logo: 'logos/js.svg' },
+            { name: 'Java\nScript', logo: 'logos/js.svg' },
             { name: 'Java', logo: 'logos/java.svg' },
             { name: 'C', logo: 'logos/c.svg' },
             { name: 'HTML', logo: 'logos/html.svg' },
             { name: 'React', logo: 'logos/react.svg' },
             { name: 'CSS', logo: 'logos/css.svg' },
-            { name: 'TypeScript', logo: 'logos/typescript.svg' }
+            { name: 'Type\nScript', logo: 'logos/typescript.svg' }
         ];
         container.innerHTML = `
             <div style="position:relative;width:100%;height:100%;min-height:350px;">
@@ -151,7 +134,7 @@ function renderContent(contentId) {
                     ${skills.map(skill => `
                         <div class="skill-card">
                             <span class="skill-swap" data-label="${skill.name}">
-                                <img src="${skill.logo}" alt="${skill.name}" />
+                                <img src="${skill.logo}" alt="${skill.name.replace(/\n/g, ' ')}" />
                             </span>
                         </div>
                     `).join('')}
@@ -247,7 +230,7 @@ function renderContent(contentId) {
                         <polyline points="15 3 21 3 21 9"></polyline>
                         <line x1="10" y1="14" x2="21" y2="3"></line>
                     </svg>
-                    Live Demo
+                    Demo
                 </a>
             `;
         }
@@ -722,8 +705,7 @@ function highlightSidebar() {
         skills:   { type: 'file', target: 'skills', folder: null },
         learning: { type: 'file', target: 'learning', folder: 'notes' },
         howiwork: { type: 'file', target: 'how-i-work', folder: 'notes' },
-        whythis:  { type: 'file', target: 'why-this-site', folder: 'meta' },
-        designdec: { type: 'file', target: 'design-decisions', folder: 'meta' }
+        sitenotes: { type: 'file', target: 'site-notes', folder: 'notes' }
     };
 
     svg.innerHTML = '';
@@ -733,7 +715,7 @@ function highlightSidebar() {
     // Arrange nodes in a circle for visual clarity and even spacing
     const nodeKeys = [
         'whoami', 'fts', 'deepnotes', 'bmats', 'touchline',
-        'skills', 'learning', 'howiwork', 'whythis', 'designdec'
+        'skills', 'learning', 'howiwork', 'sitenotes'
     ];
     const nodes = nodeKeys.map((id, i) => {
         const angle = (2 * Math.PI * i) / nodeKeys.length;
